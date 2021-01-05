@@ -3,48 +3,45 @@ import 'package:ionicons/ionicons.dart';
 import 'package:line_icons/line_icons.dart';
 
 class MainBottomNavigationBar extends StatefulWidget {
+  MainBottomNavigationBar(ValueNotifier<String> chooseNotifier) {
+    _chooseNotifier = chooseNotifier;
+  }
+
+  ValueNotifier<String> _chooseNotifier;
+
   @override
   _MainBottomNavigationBarState createState() =>
       _MainBottomNavigationBarState();
 }
 
 class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
-  final _chooseNotifier = ValueNotifier<String>('');
   int selectionIndex = 1;
-  String whichCategory;
 
   void onPressedCategory(int index) {
-    _chooseNotifier.value = index.toString();
     if (index == 0) return;
+    widget._chooseNotifier.value = index.toString();
     selectionIndex = index;
-    print(index);
   }
 
   void onBack() {
-    _chooseNotifier.value = 'back';
-  }
-
-  @override
-  void dispose() {
-    _chooseNotifier.dispose();
-    super.dispose();
+    widget._chooseNotifier.value = 'back';
   }
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: _chooseNotifier,
+      valueListenable: widget._chooseNotifier,
       builder: (_, value, __) => getWidget(context),
     );
   }
 
   BottomNavigationBar getWidget(BuildContext context) {
     return BottomNavigationBar(
+      iconSize: 32,
       onTap: (selectionIndex) => onPressedCategory(selectionIndex),
       currentIndex: selectionIndex,
       unselectedIconTheme: IconThemeData(color: Theme.of(context).accentColor),
-      selectedIconTheme:
-          IconThemeData(color: Theme.of(context).accentColor, size: 40),
+      selectedIconTheme: IconThemeData(color: Theme.of(context).accentColor),
       selectedFontSize: 12.0,
       selectedItemColor: Theme.of(context).accentColor,
       selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
