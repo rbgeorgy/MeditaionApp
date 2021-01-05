@@ -8,7 +8,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  var _chooseNotifier = ValueNotifier<String>('');
+  var _chooseNotifier = ValueNotifier<String>('1');
 
   @override
   Widget build(BuildContext context) {
