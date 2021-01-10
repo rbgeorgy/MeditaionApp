@@ -20,12 +20,17 @@ class _TrainPageViewState extends State<TrainPageView> {
   @override
   Widget build(BuildContext context) {
     List<WorkoutComponent> _pages = [
-      WorkoutComponent(color: Theme.of(context).accentColor),
       WorkoutComponent(
-        color: Colors.amber,
+        color: Colors.white,
+        duration: 3,
       ),
       WorkoutComponent(
-        color: Colors.black45,
+        color: Colors.white,
+        duration: 3,
+      ),
+      WorkoutComponent(
+        color: Colors.white,
+        duration: 3,
       )
     ];
     return Stack(
