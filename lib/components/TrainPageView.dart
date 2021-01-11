@@ -19,19 +19,19 @@ class _TrainPageViewState extends State<TrainPageView> {
 
   @override
   Widget build(BuildContext context) {
-    List<WorkoutComponent> _pages = [
-      WorkoutComponent(
+    List<Widget> _pages = [
+      WorkoutComponent2(
         color: Colors.white,
-        duration: 3,
+        duration: 12,
       ),
-      WorkoutComponent(
+      WorkoutComponent2(
         color: Colors.white,
-        duration: 3,
+        duration: 5,
       ),
-      WorkoutComponent(
-        color: Colors.white,
-        duration: 3,
-      )
+      // WorkoutComponent(
+      //   color: Colors.white,
+      //   duration: 3,
+      // )
     ];
     return Stack(
       children: [
@@ -72,7 +72,7 @@ class DotsIndicator extends AnimatedWidget {
     this.controller,
     this.itemCount,
     this.onPageSelected,
-    this.color: Colors.white,
+    this.color: Colors.black12,
   }) : super(listenable: controller);
 
   /// The PageController that this DotsIndicator is representing.
@@ -109,16 +109,18 @@ class DotsIndicator extends AnimatedWidget {
     return new Container(
       height: _kDotSpacing,
       child: new Center(
-        child: new Material(
-          color: color.withOpacity(0.7),
-          type: MaterialType.circle,
-          child: new Container(
-            width: _kDotSize * zoom,
-            height: _kDotSize * zoom,
-            child: new InkWell(
-              onTap: () => onPageSelected(index),
-              child: Center(
-                child: Text(''), //Сюда первые буквы названия
+        child: ClipOval(
+          child: new Material(
+            color: color.withOpacity(0.7),
+            type: MaterialType.circle,
+            child: new Container(
+              width: _kDotSize * zoom,
+              height: _kDotSize * zoom,
+              child: new InkWell(
+                onTap: () => onPageSelected(index),
+                child: Center(
+                  child: Text(''), //Сюда первые буквы названия
+                ),
               ),
             ),
           ),

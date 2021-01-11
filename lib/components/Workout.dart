@@ -1,98 +1,30 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
-import 'package:meditation/classes_for_workout/sesiion_data.dart';
-import 'package:tuple/tuple.dart';
+import 'package:meditation/classes_for_workout/session_data.dart';
 
-const TWO_PI = 3.14159 * 2;
+const TWO_PI = 6.28318;
 
-class WorkoutComponent extends StatefulWidget {
+class WorkoutComponent2 extends StatelessWidget {
   @required
   final Color color;
   final int duration;
-  const WorkoutComponent({Key key, this.color, this.duration})
-      : super(key: key);
+  WorkoutComponent2({Key key, this.color, this.duration}) : super(key: key);
+  final SessionData sessionData = SessionData([2, 4], 6, [0, 1]);
 
-  @override
-  _WorkoutComponentState createState() => _WorkoutComponentState();
-}
+  final double nessesaryRotation = -1.570795; //-pi/2
+  final size = 250.0;
+  final Color barColor = Colors.blue;
+  final Color barColor2 = Colors.cyan;
 
-class _WorkoutComponentState extends State<WorkoutComponent>
-    with SingleTickerProviderStateMixin {
-  Animation<double> animation;
-  AnimationController controller;
-  SessionData sessionData =
-      SessionData(oneCircleDuration: 12, data: [Tuple2(0, 4), Tuple2(1, 8)]);
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    controller = AnimationController(
-        duration: Duration(seconds: sessionData.oneCircleDuration),
-        vsync: this);
-    animation = Tween<double>(begin: 0, end: 1).animate(controller)
-      ..addListener(() {
-        setState(() {
-          // The state that has changed here is the animation object’s value.
-        });
-      });
-    controller.forward();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final size = 250.0;
-    int percentage = (animation.value * 100).ceil();
-    String inner = percentage / 100 <
-            sessionData.data[0].item2 / sessionData.oneCircleDuration
-        ? 'вдох'
-        : 'выдох';
-
-    return SubProgressBar(
-        sessionData: sessionData,
-        widget: widget,
-        size: size,
-        animation: animation,
-        percentage: percentage,
-        inner: inner,
-        barColor: Colors.blue,
-        barColor2: Colors.cyan);
-  }
-}
-
-class SubProgressBar extends StatelessWidget {
-  const SubProgressBar(
-      {Key key,
-      @required this.sessionData,
-      @required this.widget,
-      @required this.size,
-      @required this.animation,
-      @required this.percentage,
-      @required this.inner,
-      @required this.barColor,
-      @required this.barColor2})
-      : super(key: key);
-
-  final WorkoutComponent widget;
-  final double size;
-  final Animation<double> animation;
-  final int percentage;
-  final Color barColor;
-  final Color barColor2;
-  final SessionData sessionData;
-  final String inner;
-  final double nessesaryRotation = -3.14159 / 2.0;
+  bool paused = true;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 30),
-      decoration: BoxDecoration(color: widget.color),
+      decoration: BoxDecoration(color: color),
       child: Center(
         child: Container(
           width: size,
@@ -100,17 +32,15 @@ class SubProgressBar extends StatelessWidget {
           child: Stack(
             children: [
               Transform.rotate(
-                angle: -3.14159 / 2.0,
+                angle: -1.570795,
                 child: ShaderMask(
                   shaderCallback: (rect) {
                     return SweepGradient(
                         startAngle: 0.0,
                         endAngle: TWO_PI,
                         stops: [
-                          sessionData.data[0].item2 /
-                              sessionData.oneCircleDuration,
-                          sessionData.data[0].item2 /
-                              sessionData.oneCircleDuration
+                          sessionData.fractions[0] + 0.0005,
+                          sessionData.fractions[0] + 0.0005
                         ],
                         center: Alignment.center,
                         colors: [
@@ -127,20 +57,15 @@ class SubProgressBar extends StatelessWidget {
                 ),
               ),
               Transform.rotate(
-                angle: nessesaryRotation +
-                    TWO_PI *
-                        sessionData.data[0].item2 /
-                        sessionData.oneCircleDuration,
+                angle: nessesaryRotation + TWO_PI * sessionData.fractions[0],
                 child: ShaderMask(
                   shaderCallback: (rect) {
                     return SweepGradient(
                         startAngle: 0.0,
                         endAngle: TWO_PI,
                         stops: [
-                          sessionData.data[1].item2 /
-                              sessionData.oneCircleDuration,
-                          sessionData.data[1].item2 /
-                              sessionData.oneCircleDuration
+                          sessionData.fractions[1] + 0.0005,
+                          sessionData.fractions[1] + 0.0005
                         ],
                         center: Alignment.center,
                         colors: [
@@ -156,78 +81,26 @@ class SubProgressBar extends StatelessWidget {
                   ),
                 ),
               ),
-              Transform.rotate(
-                angle: -3.14159 / 2.0,
-                child: ShaderMask(
-                  shaderCallback: (rect) {
-                    return SweepGradient(
-                        startAngle: 0.0,
-                        endAngle: TWO_PI,
-                        stops: [animation.value, animation.value],
-                        center: Alignment.center,
-                        colors: [
-                          animation.value >=
-                                  sessionData.data[0].item2 /
-                                      sessionData.oneCircleDuration
-                              ? barColor2
-                              : Colors.transparent,
-                          Colors.transparent
-                        ]).createShader(rect);
-                  },
-                  child: Container(
-                    width: size,
-                    height: size,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle, color: Colors.white),
-                  ),
-                ),
-              ),
-              Transform.rotate(
-                angle: -3.14159 / 2.0,
-                child: ShaderMask(
-                  shaderCallback: (rect) {
-                    return SweepGradient(
-                            startAngle: 0.0,
-                            endAngle: TWO_PI *
-                                sessionData.data[0].item2 /
-                                sessionData.oneCircleDuration,
-                            stops: [
-                              animation.value /
-                                  (sessionData.data[0].item2 /
-                                      sessionData.oneCircleDuration),
-                              animation.value /
-                                  (sessionData.data[0].item2 /
-                                      sessionData.oneCircleDuration)
-                            ],
-                            center: Alignment.center,
-                            colors: [barColor, Colors.transparent])
-                        .createShader(rect);
-                  },
-                  child: Container(
-                    width: size,
-                    height: size,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle, color: Colors.white),
-                  ),
-                ),
-              ),
+              paused
+                  ? SizedBox.shrink()
+                  : RoundThing(
+                      sessionData: sessionData,
+                      barColor2: barColor2,
+                      barColor: barColor,
+                      size: size,
+                    ),
               Center(
+                //добавить штуку, которая не будет опираться на animation.value
+                //у нас же есть заранее известный duration, поэтому у нас будет
+                //асинхронный метод, который отображает инфу, согласно session.data
                 child: Container(
                   width: size - 40,
                   height: size - 40,
                   decoration: BoxDecoration(
                       color: Colors.white, shape: BoxShape.circle),
                   child: Center(
-                      child: Text(
-                    '$inner',
-                    style: TextStyle(
-                        fontSize: 25,
-                        color: animation.value >=
-                                sessionData.data[0].item2 /
-                                    sessionData.oneCircleDuration
-                            ? barColor2
-                            : barColor,
-                        fontWeight: FontWeight.bold),
+                      child: MaterialButton(
+                    onPressed: () {},
                   )),
                 ),
               )
@@ -235,6 +108,102 @@ class SubProgressBar extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class RoundThing extends StatefulWidget {
+  RoundThing(
+      {Key key, this.sessionData, this.barColor2, this.barColor, this.size})
+      : super(key: key);
+  @required
+  final SessionData sessionData;
+  final Color barColor;
+  final Color barColor2;
+  final double size;
+
+  @override
+  _RoundThingState createState() => _RoundThingState();
+}
+
+class _RoundThingState extends State<RoundThing>
+    with SingleTickerProviderStateMixin {
+  Animation<double> animation;
+  AnimationController controller;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+        duration: Duration(seconds: widget.sessionData.oneCircleDuration),
+        vsync: this);
+    animation = Tween<double>(begin: 0, end: 1).animate(controller)
+      ..addListener(() {
+        setState(() {
+          // The state that has changed here is the animation object’s value.
+        });
+      });
+    controller.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Transform.rotate(
+          angle: -1.570795,
+          child: ShaderMask(
+            shaderCallback: (rect) {
+              return SweepGradient(
+                  startAngle: 0.0,
+                  endAngle: TWO_PI,
+                  stops: [animation.value, animation.value],
+                  center: Alignment.center,
+                  colors: [
+                    animation.value >= widget.sessionData.fractions[0]
+                        ? widget.barColor2
+                        : Colors.transparent,
+                    Colors.transparent
+                  ]).createShader(rect);
+            },
+            child: Container(
+              width: widget.size,
+              height: widget.size,
+              decoration:
+                  BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+            ),
+          ),
+        ),
+        Transform.rotate(
+          angle: -1.570795,
+          child: ShaderMask(
+            shaderCallback: (rect) {
+              return SweepGradient(
+                      startAngle: 0.0,
+                      endAngle: TWO_PI * widget.sessionData.fractions[0],
+                      stops: [
+                        animation.value * (widget.sessionData.unFractions[0]),
+                        animation.value * (widget.sessionData.unFractions[0])
+                      ],
+                      center: Alignment.center,
+                      colors: [widget.barColor, Colors.transparent])
+                  .createShader(rect);
+            },
+            child: Container(
+              width: widget.size,
+              height: widget.size,
+              decoration:
+                  BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
