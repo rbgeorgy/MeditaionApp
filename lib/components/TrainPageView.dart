@@ -5,8 +5,8 @@ import 'package:meditation/classes_for_workout/session_data.dart';
 import 'customPaintWorkout.dart';
 
 class TrainPageView extends StatefulWidget {
-  static List<SessionData> list = [
-    SessionData([5, 5, 5, 5], 20,
+  final List<SessionData> list = [
+    SessionData([2, 2, 2, 2], 8,
         [Types.breathIn, Types.hold, Types.breathOut, Types.hold])
   ];
 
@@ -26,11 +26,14 @@ class _TrainPageViewState extends State<TrainPageView> {
   @override
   Widget build(BuildContext context) {
     List<Widget> _pages = [
-      Center(child: RotatedBox(quarterTurns: -1, child: WorkoutArcAnimated())),
-      // WorkoutComponent(
-      //   color: Colors.white,
-      //   duration: 3,
-      // )
+      Center(
+          child: RotatedBox(
+              quarterTurns: -1,
+              child: WorkoutArcAnimated(sessionData: widget.list[0]))),
+      Center(
+          child: RotatedBox(
+              quarterTurns: -1,
+              child: WorkoutArcAnimated(sessionData: widget.list[0]))),
     ];
     return Stack(
       children: [

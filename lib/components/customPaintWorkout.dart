@@ -7,13 +7,10 @@ class ArcPainter extends CustomPainter {
   final double current;
   final List<double> limits;
   final List<Types> items;
-  final double toWhere1;
-  final double toWhere2;
 
   bool done = false;
 
-  ArcPainter(
-      this.current, this.toWhere1, this.toWhere2, this.limits, this.items);
+  ArcPainter(this.current, this.limits, this.items);
 
   List<Paint> painters = [
     Paint()
@@ -33,39 +30,64 @@ class ArcPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (int i = 0; i < items.length; i++) {
-      if (current <= limits[i]) {
+      if (i == 0 && current <= limits[i]) {
         canvas.drawArc(
             Offset(0, 0) & Size(250, 250),
             0, //radianss
             current, //radians
             false,
             painters[items[i].index]);
+        print(items[i].index);
+      } else if (i == 0 && current > limits[i]) {
+        canvas.drawArc(
+            Offset(0, 0) & Size(250, 250),
+            0, //radianss
+            limits[i], //radians
+            false,
+            painters[items[i].index]);
+      }
+
+      if (i != 0 && current >= limits[i - 1] && current <= limits[i]) {
+        print(items[i].index);
+        canvas.drawArc(
+            Offset(0, 0) & Size(250, 250),
+            limits[i - 1], //radianss
+            current - limits[i - 1], //radians
+            false,
+            painters[items[i].index]);
+      } else if (i != 0 && current > limits[i]) {
+        canvas.drawArc(
+            Offset(0, 0) & Size(250, 250),
+            limits[i - 1], //radianss
+            limits[i], //radians
+            false,
+            painters[items[i].index]);
       }
     }
 
-    if (current <= toWhere1)
-      canvas.drawArc(
-          Offset(0, 0) & Size(250, 250),
-          0, //radianss
-          current, //radians
-          false,
-          paint1);
-    else
-      canvas.drawArc(
-          Offset(0, 0) & Size(250, 250),
-          0, //radianss
-          toWhere1, //radians
-          false,
-          paint1);
+    // if (current <= toWhere1)
+    //   canvas.drawArc(
+    //       Offset(0, 0) & Size(250, 250),
+    //       0, //radianss
+    //       current, //radians
+    //       false,
+    //       paint1);
+    // else
+    //   canvas.drawArc(
+    //       Offset(0, 0) & Size(250, 250),
+    //       0, //radianss
+    //       toWhere1, //radians
+    //       false,
+    //       paint1);
 
-    if (current >= toWhere1 && current <= toWhere2) {
-      canvas.drawArc(
-          Offset(0, 0) & Size(250, 250),
-          toWhere1, //radianss
-          current - toWhere1, //radians
-          false,
-          paint2);
-    }
+    // if (current >= toWhere1 && current <= toWhere2) {
+    //   canvas.drawArc(
+    //       Offset(0, 0) & Size(250, 250),
+    //       toWhere1, //radianss
+    //       current - toWhere1, //radians
+    //       false,
+    //       paint2);
+    // }
     done = true;
   }
 
@@ -87,8 +109,6 @@ class WorkoutArcAnimated extends StatefulWidget {
 class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
     with SingleTickerProviderStateMixin {
   double current = 0;
-  double toWhere1 = 2;
-  double toWhere2 = 6.2831;
   Animation<double> _animation;
   AnimationController controller;
 
@@ -118,7 +138,7 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
 
   @override
   Widget build(BuildContext context) {
-    _animation = Tween(begin: 0.0, end: toWhere2).animate(controller)
+    _animation = Tween(begin: 0.0, end: 6.2831).animate(controller)
       ..addListener(() {
         setState(() {
           current = _animation.value;
@@ -129,8 +149,8 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
       width: 250,
       height: 250,
       child: CustomPaint(
-        painter: ArcPainter(current, toWhere1, toWhere2,
-            widget.sessionData.limits, widget.sessionData.ids),
+        painter: ArcPainter(
+            current, widget.sessionData.limits, widget.sessionData.ids),
       ),
     );
   }
