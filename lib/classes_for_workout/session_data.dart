@@ -1,22 +1,23 @@
-import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:meditation/components/customPaintWorkout.dart';
 
 class SessionData {
   @required
   final int oneCircleDuration;
-  Float32List fractions;
-  Float32List unFractions;
-  final List<int> ids;
+  @required
+  Float32List limits;
+  @required
+  final List<Types> ids;
+  @required
   final List<int> idsDurations;
   int numberOfCircles = 15;
+
   SessionData(this.idsDurations, this.oneCircleDuration, this.ids) {
-    fractions = new Float32List(ids.length);
-    unFractions = new Float32List(ids.length);
+    limits = new Float32List(ids.length);
     for (int i = 0; i < ids.length; i++) {
-      fractions[i] = idsDurations[i] / oneCircleDuration;
-      unFractions[i] = oneCircleDuration / idsDurations[i];
+      limits[i] = 2 * 6.2832 * idsDurations[i] / oneCircleDuration;
     }
   }
 

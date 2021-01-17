@@ -1,9 +1,15 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:meditation/components/Workout.dart';
+import 'package:meditation/classes_for_workout/session_data.dart';
+import 'customPaintWorkout.dart';
 
 class TrainPageView extends StatefulWidget {
+  static List<SessionData> list = [
+    SessionData([5, 5, 5, 5], 20,
+        [Types.breathIn, Types.hold, Types.breathOut, Types.hold])
+  ];
+
   @override
   _TrainPageViewState createState() => _TrainPageViewState();
 }
@@ -20,14 +26,7 @@ class _TrainPageViewState extends State<TrainPageView> {
   @override
   Widget build(BuildContext context) {
     List<Widget> _pages = [
-      WorkoutComponent2(
-        color: Colors.white,
-        duration: 12,
-      ),
-      WorkoutComponent2(
-        color: Colors.white,
-        duration: 5,
-      ),
+      Center(child: RotatedBox(quarterTurns: -1, child: WorkoutArcAnimated())),
       // WorkoutComponent(
       //   color: Colors.white,
       //   duration: 3,
