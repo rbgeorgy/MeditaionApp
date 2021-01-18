@@ -50,7 +50,5 @@ class ArcPainterUnanimated extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(ArcPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(ArcPainter oldDelegate) => false;
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meditation/classes_for_workout/session_data.dart';
+import 'package:duration/duration.dart';
 
 enum Types { breathIn, breathOut, hold }
 
@@ -112,11 +113,23 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
                 child: RotatedBox(
                     quarterTurns: 1,
                     child: MaterialButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50)),
                         child: start
-                            ? TextData(
-                                current: _animation.value,
-                                limits: widget.sessionData.limits,
-                                items: widget.sessionData.ids,
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextData(
+                                    current: _animation.value,
+                                    limits: widget.sessionData.limits,
+                                    items: widget.sessionData.ids,
+                                  ),
+                                  SessionCounter(
+                                    duration:
+                                        widget.sessionData.oneCircleDuration,
+                                    current: _animation.value,
+                                  ),
+                                ],
                               )
                             : Icon(
                                 Icons.play_arrow,
@@ -169,5 +182,25 @@ class TextData extends StatelessWidget {
       }
     }
     return Text('');
+  }
+}
+
+class SessionCounter extends StatelessWidget {
+  @required
+  final double current;
+  final double oneFracTwoPi = 0.16;
+  final int duration;
+
+  const SessionCounter({this.current, this.duration});
+
+  @override
+  Widget build(BuildContext context) {
+    final double res = duration - current * oneFracTwoPi * duration;
+    final dur = Duration(seconds: res.toInt() + 1);
+    return Text(
+      dur.toString().split('.').first.padLeft(8, "0").replaceRange(0, 3, ''),
+      style: TextStyle(
+          fontSize: 22, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+    );
   }
 }
