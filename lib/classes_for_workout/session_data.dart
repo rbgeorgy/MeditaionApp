@@ -12,7 +12,7 @@ class SessionData {
   final List<Types> ids;
   @required
   final List<int> idsDurations;
-  int numberOfCircles = 15;
+  int numberOfCircles = 2;
 
   SessionData(this.idsDurations, this.oneCircleDuration, this.ids) {
     limits = new Float32List(ids.length + 1);

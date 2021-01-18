@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:line_icons/line_icons.dart';
 
+// ignore: must_be_immutable
 class MainBottomNavigationBar extends StatefulWidget {
   MainBottomNavigationBar(ValueNotifier<String> chooseNotifier) {
     _chooseNotifier = chooseNotifier;

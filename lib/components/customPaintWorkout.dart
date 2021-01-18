@@ -12,7 +12,7 @@ class ArcPainter extends CustomPainter {
 
   ArcPainter(this.current, this.limits, this.items);
 
-  List<Paint> painters = [
+  final List<Paint> painters = [
     Paint()
       ..color = Colors.blue
       ..style = PaintingStyle.stroke
@@ -66,9 +66,9 @@ class WorkoutArcAnimated extends StatefulWidget {
 
 class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
     with SingleTickerProviderStateMixin {
-  double current = 0;
   Animation<double> _animation;
   AnimationController controller;
+  bool start = false;
 
   @override
   void initState() {
@@ -76,16 +76,20 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
     controller = AnimationController(
         duration: Duration(seconds: widget.sessionData.oneCircleDuration),
         vsync: this);
-
-    controller.forward();
+    int repeatitions = widget.sessionData.numberOfCircles;
 
     controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        controller.stop();
-      } else if (status == AnimationStatus.dismissed) {
-        controller.forward();
+        repeatitions--;
+        print(repeatitions);
+        if (repeatitions == 0) {
+          controller.stop();
+        } else
+          controller.repeat();
       }
     });
+
+    _animation = Tween(begin: 0.0, end: 6.2831).animate(controller);
   }
 
   @override
@@ -96,20 +100,74 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
 
   @override
   Widget build(BuildContext context) {
-    _animation = Tween(begin: 0.0, end: 6.2831).animate(controller)
-      ..addListener(() {
-        setState(() {
-          current = _animation.value;
-        });
-      });
-
     return SizedBox(
       width: 250,
       height: 250,
-      child: CustomPaint(
-        painter: ArcPainter(
-            current, widget.sessionData.limits, widget.sessionData.ids),
+      child: AnimatedBuilder(
+        builder: (_, build) {
+          return CustomPaint(
+            painter: ArcPainter(_animation.value, widget.sessionData.limits,
+                widget.sessionData.ids),
+            child: Center(
+                child: RotatedBox(
+                    quarterTurns: 1,
+                    child: MaterialButton(
+                        child: start
+                            ? TextData(
+                                current: _animation.value,
+                                limits: widget.sessionData.limits,
+                                items: widget.sessionData.ids,
+                              )
+                            : Icon(
+                                Icons.play_arrow,
+                                size: 80,
+                                color: Colors.blue,
+                              ),
+                        // minWidth: 50,
+                        // height: 50,
+                        onPressed: () {
+                          setState(() {
+                            if (!start) {
+                              start = true;
+                              controller.forward();
+                            } else {
+                              start = false;
+                              controller.stop();
+                            }
+                          });
+                        }))),
+          );
+        },
+        animation: controller,
       ),
     );
+  }
+}
+
+class TextData extends StatelessWidget {
+  @required
+  final double current;
+  @required
+  final List<double> limits;
+  @required
+  final List<Types> items;
+  final List<String> textDatas = const ['Вдох', 'Выдох', 'Задержка'];
+
+  const TextData({this.current, this.limits, this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    for (int i = 0; i < items.length; i++) {
+      if (current >= limits[i] && current < limits[i + 1]) {
+        return Text(
+          textDatas[items[i].index],
+          style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).accentColor),
+        );
+      }
+    }
+    return Text('');
   }
 }

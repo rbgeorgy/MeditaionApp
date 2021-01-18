@@ -8,13 +8,16 @@ import 'customPaintWorkout.dart';
 class TrainPageView extends StatefulWidget {
   final List<SessionData> list = [
     SessionData(
-        [0, 4, 4, 4, 4],
-        16,
+        [0, 2, 2, 2, 2, 2, 2, 2],
+        14,
         [
           Types.breathIn,
           Types.hold,
           Types.breathOut,
           Types.hold,
+          Types.breathIn,
+          Types.hold,
+          Types.breathOut
         ])
   ];
 
@@ -44,7 +47,10 @@ class _TrainPageViewState extends State<TrainPageView> {
       Center(
           child: RotatedBox(
               quarterTurns: -1,
-              child: WorkoutArcAnimated(sessionData: widget.list[0]))),
+              child: Stack(children: [
+                WorkoutUnanimated(sessionData: widget.list[0]),
+                WorkoutArcAnimated(sessionData: widget.list[0])
+              ]))),
     ];
     return Stack(
       children: [
@@ -67,7 +73,7 @@ class _TrainPageViewState extends State<TrainPageView> {
                 onPageSelected: (int page) {
                   _controller.animateToPage(
                     page,
-                    duration: Duration(milliseconds: 300),
+                    duration: Duration(milliseconds: 250),
                     curve: Curves.ease,
                   );
                 },
@@ -85,7 +91,7 @@ class DotsIndicator extends AnimatedWidget {
     this.controller,
     this.itemCount,
     this.onPageSelected,
-    this.color: Colors.black12,
+    this.color: Colors.blue,
   }) : super(listenable: controller);
 
   /// The PageController that this DotsIndicator is representing.
