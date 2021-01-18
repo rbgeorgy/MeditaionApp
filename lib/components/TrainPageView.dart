@@ -2,12 +2,20 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:meditation/classes_for_workout/session_data.dart';
+import 'WorkoutUnanimated.dart';
 import 'customPaintWorkout.dart';
 
 class TrainPageView extends StatefulWidget {
   final List<SessionData> list = [
-    SessionData([2, 2, 2, 2], 8,
-        [Types.breathIn, Types.hold, Types.breathOut, Types.hold])
+    SessionData(
+        [0, 4, 4, 4, 4],
+        16,
+        [
+          Types.breathIn,
+          Types.hold,
+          Types.breathOut,
+          Types.hold,
+        ])
   ];
 
   @override
@@ -29,7 +37,10 @@ class _TrainPageViewState extends State<TrainPageView> {
       Center(
           child: RotatedBox(
               quarterTurns: -1,
-              child: WorkoutArcAnimated(sessionData: widget.list[0]))),
+              child: Stack(children: [
+                WorkoutUnanimated(sessionData: widget.list[0]),
+                WorkoutArcAnimated(sessionData: widget.list[0])
+              ]))),
       Center(
           child: RotatedBox(
               quarterTurns: -1,

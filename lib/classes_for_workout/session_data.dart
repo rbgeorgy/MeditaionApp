@@ -15,13 +15,16 @@ class SessionData {
   int numberOfCircles = 15;
 
   SessionData(this.idsDurations, this.oneCircleDuration, this.ids) {
-    limits = new Float32List(ids.length);
-    for (int i = 0; i < ids.length; i++) {
+    limits = new Float32List(ids.length + 1);
+    for (int i = 0; i <= ids.length; i++) {
       i == 0
-          ? limits[i] = 6.2832 * idsDurations[i] / oneCircleDuration
-          : limits[i] =
-              limits[i - 1] + 6.2832 * idsDurations[i] / oneCircleDuration;
+          ? limits[i] = 0
+          : i == 1
+              ? limits[i] = 6.2832 * idsDurations[i] / oneCircleDuration
+              : limits[i] =
+                  limits[i - 1] + 6.2832 * idsDurations[i] / oneCircleDuration;
     }
+    print(limits);
   }
 
   void addCircle() {

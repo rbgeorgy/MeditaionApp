@@ -30,64 +30,22 @@ class ArcPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (int i = 0; i < items.length; i++) {
-      if (i == 0 && current <= limits[i]) {
+      if (current >= limits[i] && current < limits[i + 1]) {
         canvas.drawArc(
             Offset(0, 0) & Size(250, 250),
-            0, //radianss
-            current, //radians
+            limits[i], //radianss
+            current - limits[i], //radians
             false,
             painters[items[i].index]);
-        print(items[i].index);
-      } else if (i == 0 && current > limits[i]) {
-        canvas.drawArc(
-            Offset(0, 0) & Size(250, 250),
-            0, //radianss
-            limits[i], //radians
-            false,
-            painters[items[i].index]);
-      }
 
-      if (i != 0 && current >= limits[i - 1] && current <= limits[i]) {
-        print(items[i].index);
-        canvas.drawArc(
-            Offset(0, 0) & Size(250, 250),
-            limits[i - 1], //radianss
-            current - limits[i - 1], //radians
-            false,
-            painters[items[i].index]);
-      } else if (i != 0 && current > limits[i]) {
-        canvas.drawArc(
-            Offset(0, 0) & Size(250, 250),
-            limits[i - 1], //radianss
-            limits[i], //radians
-            false,
-            painters[items[i].index]);
+        int j = i;
+        while (j > 0) {
+          canvas.drawArc(Offset(0, 0) & Size(250, 250), limits[j - 1],
+              limits[j] - limits[j - 1], false, painters[items[j - 1].index]);
+          j--;
+        }
       }
     }
-
-    // if (current <= toWhere1)
-    //   canvas.drawArc(
-    //       Offset(0, 0) & Size(250, 250),
-    //       0, //radianss
-    //       current, //radians
-    //       false,
-    //       paint1);
-    // else
-    //   canvas.drawArc(
-    //       Offset(0, 0) & Size(250, 250),
-    //       0, //radianss
-    //       toWhere1, //radians
-    //       false,
-    //       paint1);
-
-    // if (current >= toWhere1 && current <= toWhere2) {
-    //   canvas.drawArc(
-    //       Offset(0, 0) & Size(250, 250),
-    //       toWhere1, //radianss
-    //       current - toWhere1, //radians
-    //       false,
-    //       paint2);
-    // }
     done = true;
   }
 
