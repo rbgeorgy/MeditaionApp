@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:meditation/classes_for_workout/session_data.dart';
-import 'package:duration/duration.dart';
+import 'package:just_audio/just_audio.dart';
 
 enum Types { breathIn, breathOut, hold }
 
@@ -70,6 +72,30 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
   Animation<double> _animation;
   AnimationController controller;
   bool start = false;
+  int repeatitions;
+  int secondsRemains;
+  int secondsRemainsThisCircle;
+  String secondsRemainsDisplay;
+  String secondsRemainsThisCircleDisplay;
+  Timer _timer;
+
+  // final List<AudioPlayer> players = [
+  //   AudioPlayer(),
+  //   AudioPlayer(),
+  //   AudioPlayer()
+  // ];
+  // final List<bool> playersPlay = [false, false, false];
+
+  // _init() async {
+  //   try {
+  //     await players[0].setAsset('assets/BreathIn1.wav');
+  //     await players[1].setAsset('assets/BreathOut.wav');
+  //     await players[2].setAsset('assets/Hold.wav');
+  //   } catch (e) {
+  //     // catch load errors: 404, invalid url ...
+  //     print("An error occured $e");
+  //   }
+  // }
 
   @override
   void initState() {
@@ -77,26 +103,78 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
     controller = AnimationController(
         duration: Duration(seconds: widget.sessionData.oneCircleDuration),
         vsync: this);
-    int repeatitions = widget.sessionData.numberOfCircles;
+    repeatitions = widget.sessionData.numberOfCircles;
 
+    secondsRemains = 10 *
+        widget.sessionData.numberOfCircles *
+        widget.sessionData.oneCircleDuration;
+    secondsRemainsThisCircle = 10 * widget.sessionData.oneCircleDuration;
     controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         repeatitions--;
-        print(repeatitions);
-        if (repeatitions == 0) {
-          controller.stop();
-        } else
-          controller.repeat();
+        controller.reset();
+        if (repeatitions != 0)
+          controller.forward();
+        else {
+          start = false;
+          secondsRemains = 10 *
+              widget.sessionData.numberOfCircles *
+              widget.sessionData.oneCircleDuration;
+          secondsRemainsThisCircle = 10 * widget.sessionData.oneCircleDuration;
+          repeatitions = widget.sessionData.numberOfCircles;
+        }
       }
     });
 
     _animation = Tween(begin: 0.0, end: 6.2831).animate(controller);
+    // _init();
   }
 
   @override
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  void startTimer() {
+    if (_timer != null) {
+      _timer.cancel();
+    }
+    _timer = new Timer.periodic(Duration(milliseconds: 100), (timer) {
+      if (secondsRemains == 0) {
+        setState(() {
+          timer.cancel();
+        });
+      } else {
+        setState(() {
+          secondsRemains--;
+          secondsRemainsThisCircle--;
+          secondsRemainsDisplay = secondsRemains.toString().replaceRange(
+              secondsRemains.toString().length - 1,
+              secondsRemains.toString().length,
+              '');
+          secondsRemainsThisCircleDisplay = secondsRemainsThisCircle
+              .toString()
+              .replaceRange(secondsRemainsThisCircle.toString().length - 1,
+                  secondsRemainsThisCircle.toString().length, '');
+
+          if (secondsRemainsDisplay == '') secondsRemainsDisplay = '0';
+          if (secondsRemainsThisCircleDisplay == '')
+            secondsRemainsThisCircleDisplay = '0';
+
+          if (secondsRemainsThisCircle == 0) {
+            secondsRemainsThisCircle =
+                10 * widget.sessionData.oneCircleDuration;
+          }
+        });
+      }
+    });
+  }
+
+  void pauseTimer() {
+    if (_timer != null) _timer.cancel();
+    secondsRemains = repeatitions * widget.sessionData.oneCircleDuration * 10;
+    secondsRemainsThisCircle = widget.sessionData.oneCircleDuration * 10;
   }
 
   @override
@@ -106,6 +184,27 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
       height: 250,
       child: AnimatedBuilder(
         builder: (_, build) {
+          // if (controller.isCompleted && repeatitions != 0) {
+          //   repeatitions--;
+          //   print(repeatitions);
+          //   controller.reset();
+          //   controller.forward();
+          // }
+          // if (repeatitions == 0) {
+          //   controller.reset();
+          // }
+          // for (int i = 0; i < widget.sessionData.ids.length; i++) {
+          //   if (_animation.value > widget.sessionData.limits[i] &&
+          //       _animation.value < widget.sessionData.limits[i + 1] &&
+          //       playersPlay[widget.sessionData.ids[i].index] == false) {
+          //     playersPlay[widget.sessionData.ids[i].index] = true;
+          //     print(widget.sessionData.audioDurationsCoefficient[i + 1]);
+          //     players[widget.sessionData.ids[i].index].setSpeed(
+          //         widget.sessionData.audioDurationsCoefficient[i + 1]);
+          //     players[widget.sessionData.ids[i].index].play();
+          //   }
+          // }
+
           return CustomPaint(
             painter: ArcPainter(_animation.value, widget.sessionData.limits,
                 widget.sessionData.ids),
@@ -118,17 +217,34 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
                         child: start
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  Text(
+                                    'Тренировка\n$secondsRemainsDisplay',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  ),
                                   TextData(
                                     current: _animation.value,
                                     limits: widget.sessionData.limits,
                                     items: widget.sessionData.ids,
                                   ),
-                                  SessionCounter(
-                                    duration:
-                                        widget.sessionData.oneCircleDuration,
-                                    current: _animation.value,
+                                  Text(
+                                    'Круг\n$secondsRemainsThisCircleDisplay',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
                                   ),
+                                  // SessionCounter(
+                                  //   duration:
+                                  //       widget.sessionData.oneCircleDuration,
+                                  //   current: _animation.value,
+                                  // ),
                                 ],
                               )
                             : Icon(
@@ -142,10 +258,12 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
                           setState(() {
                             if (!start) {
                               start = true;
+                              startTimer();
                               controller.forward();
                             } else {
                               start = false;
-                              controller.stop();
+                              pauseTimer();
+                              controller.reset();
                             }
                           });
                         }))),
@@ -197,8 +315,9 @@ class SessionCounter extends StatelessWidget {
   Widget build(BuildContext context) {
     final double res = duration - current * oneFracTwoPi * duration;
     final dur = Duration(seconds: res.toInt() + 1);
+
     return Text(
-      dur.toString().split('.').first.padLeft(8, "0").replaceRange(0, 3, ''),
+      dur.toString().replaceRange(0, 3, '').replaceRange(4, 11, ''),
       style: TextStyle(
           fontSize: 22, fontWeight: FontWeight.bold, color: Colors.deepPurple),
     );
