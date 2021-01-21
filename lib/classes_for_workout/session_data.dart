@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:meditation/components/customPaintWorkout.dart';
+
+enum Types { breathIn, breathOut, hold }
 
 class SessionData {
   @required
@@ -13,9 +14,10 @@ class SessionData {
   final List<Types> ids;
   @required
   final List<int> idsDurations;
-  int numberOfCircles = 2;
+  int numberOfCircles;
 
-  SessionData(this.idsDurations, this.oneCircleDuration, this.ids) {
+  SessionData(this.idsDurations, this.oneCircleDuration, this.ids,
+      this.numberOfCircles) {
     limits = new Float32List(ids.length + 1);
     audioDurationsCoefficient =
         new Float32List(ids.length); //hold 5; in 7; out 4;

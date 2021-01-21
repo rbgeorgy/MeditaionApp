@@ -14,7 +14,8 @@ class TrainPageView extends StatefulWidget {
           Types.hold,
           Types.breathOut,
           Types.hold,
-        ])
+        ],
+        10)
   ];
 
   @override

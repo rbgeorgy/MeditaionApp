@@ -1,62 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:meditation/classes_for_workout/session_data.dart';
 import 'package:just_audio/just_audio.dart';
-
-enum Types { breathIn, breathOut, hold }
-
-class ArcPainter extends CustomPainter {
-  final double current;
-  final List<double> limits;
-  final List<Types> items;
-
-  bool done = false;
-
-  ArcPainter(this.current, this.limits, this.items);
-
-  final List<Paint> painters = [
-    Paint()
-      ..color = Colors.blue
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 20,
-    Paint()
-      ..color = Colors.cyan
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 20,
-    Paint()
-      ..color = Colors.amber
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 20
-  ];
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (int i = 0; i < items.length; i++) {
-      if (current >= limits[i] && current < limits[i + 1]) {
-        canvas.drawArc(
-            Offset(0, 0) & Size(250, 250),
-            limits[i], //radianss
-            current - limits[i], //radians
-            false,
-            painters[items[i].index]);
-
-        int j = i;
-        while (j > 0) {
-          canvas.drawArc(Offset(0, 0) & Size(250, 250), limits[j - 1],
-              limits[j] - limits[j - 1], false, painters[items[j - 1].index]);
-          j--;
-        }
-      }
-    }
-    done = true;
-  }
-
-  @override
-  bool shouldRepaint(ArcPainter oldDelegate) {
-    return !done;
-  }
-}
+import 'package:meditation/painters/arcPainter.dart';
 
 class WorkoutArcAnimated extends StatefulWidget {
   @required
@@ -78,24 +24,6 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
   String secondsRemainsDisplay;
   String secondsRemainsThisCircleDisplay;
   Timer _timer;
-
-  // final List<AudioPlayer> players = [
-  //   AudioPlayer(),
-  //   AudioPlayer(),
-  //   AudioPlayer()
-  // ];
-  // final List<bool> playersPlay = [false, false, false];
-
-  // _init() async {
-  //   try {
-  //     await players[0].setAsset('assets/BreathIn1.wav');
-  //     await players[1].setAsset('assets/BreathOut.wav');
-  //     await players[2].setAsset('assets/Hold.wav');
-  //   } catch (e) {
-  //     // catch load errors: 404, invalid url ...
-  //     print("An error occured $e");
-  //   }
-  // }
 
   @override
   void initState() {
@@ -136,6 +64,24 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
     super.dispose();
   }
 
+  String getTimeViewF(bool which) {
+    if (which) {
+      String minutes = (secondsRemains ~/ 600).toString();
+      if (minutes == '') minutes = '00';
+      String secundes = ((secondsRemains % 600) ~/ 10).toString();
+      if (secundes.length == 1) secundes = '0' + secundes;
+      final String res = '0' + minutes + ':' + secundes;
+      return res;
+    } else {
+      String minutes = (secondsRemainsThisCircle ~/ 600).toString();
+      if (minutes == '') minutes = '00';
+      String secundes = ((secondsRemainsThisCircle % 600) ~/ 10).toString();
+      if (secundes.length == 1) secundes = '0' + secundes;
+      final String res = '0' + minutes + ':' + secundes;
+      return res;
+    }
+  }
+
   void startTimer() {
     if (_timer != null) {
       _timer.cancel();
@@ -149,18 +95,8 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
         setState(() {
           secondsRemains--;
           secondsRemainsThisCircle--;
-          secondsRemainsDisplay = secondsRemains.toString().replaceRange(
-              secondsRemains.toString().length - 1,
-              secondsRemains.toString().length,
-              '');
-          secondsRemainsThisCircleDisplay = secondsRemainsThisCircle
-              .toString()
-              .replaceRange(secondsRemainsThisCircle.toString().length - 1,
-                  secondsRemainsThisCircle.toString().length, '');
-
-          if (secondsRemainsDisplay == '') secondsRemainsDisplay = '0';
-          if (secondsRemainsThisCircleDisplay == '')
-            secondsRemainsThisCircleDisplay = '0';
+          secondsRemainsDisplay = getTimeViewF(true);
+          secondsRemainsThisCircleDisplay = getTimeViewF(false);
 
           if (secondsRemainsThisCircle == 0) {
             secondsRemainsThisCircle =
@@ -184,27 +120,6 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
       height: 250,
       child: AnimatedBuilder(
         builder: (_, build) {
-          // if (controller.isCompleted && repeatitions != 0) {
-          //   repeatitions--;
-          //   print(repeatitions);
-          //   controller.reset();
-          //   controller.forward();
-          // }
-          // if (repeatitions == 0) {
-          //   controller.reset();
-          // }
-          // for (int i = 0; i < widget.sessionData.ids.length; i++) {
-          //   if (_animation.value > widget.sessionData.limits[i] &&
-          //       _animation.value < widget.sessionData.limits[i + 1] &&
-          //       playersPlay[widget.sessionData.ids[i].index] == false) {
-          //     playersPlay[widget.sessionData.ids[i].index] = true;
-          //     print(widget.sessionData.audioDurationsCoefficient[i + 1]);
-          //     players[widget.sessionData.ids[i].index].setSpeed(
-          //         widget.sessionData.audioDurationsCoefficient[i + 1]);
-          //     players[widget.sessionData.ids[i].index].play();
-          //   }
-          // }
-
           return CustomPaint(
             painter: ArcPainter(_animation.value, widget.sessionData.limits,
                 widget.sessionData.ids),
@@ -219,8 +134,11 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  SizedBox(
+                                    height: 10,
+                                  ),
                                   Text(
-                                    'Тренировка\n$secondsRemainsDisplay',
+                                    'Тренировка\n$secondsRemainsDisplay\n',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 20,
@@ -233,18 +151,13 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
                                     items: widget.sessionData.ids,
                                   ),
                                   Text(
-                                    'Круг\n$secondsRemainsThisCircleDisplay',
+                                    '\nКруг\n$secondsRemainsThisCircleDisplay',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.grey),
                                   ),
-                                  // SessionCounter(
-                                  //   duration:
-                                  //       widget.sessionData.oneCircleDuration,
-                                  //   current: _animation.value,
-                                  // ),
                                 ],
                               )
                             : Icon(
@@ -300,26 +213,5 @@ class TextData extends StatelessWidget {
       }
     }
     return Text('');
-  }
-}
-
-class SessionCounter extends StatelessWidget {
-  @required
-  final double current;
-  final double oneFracTwoPi = 0.16;
-  final int duration;
-
-  const SessionCounter({this.current, this.duration});
-
-  @override
-  Widget build(BuildContext context) {
-    final double res = duration - current * oneFracTwoPi * duration;
-    final dur = Duration(seconds: res.toInt() + 1);
-
-    return Text(
-      dur.toString().replaceRange(0, 3, '').replaceRange(4, 11, ''),
-      style: TextStyle(
-          fontSize: 22, fontWeight: FontWeight.bold, color: Colors.deepPurple),
-    );
   }
 }
