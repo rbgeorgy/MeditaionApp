@@ -4,11 +4,15 @@ import 'package:meditation/classes_for_workout/session_data.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:meditation/painters/arcPainter.dart';
 
+typedef StringValue = String Function(String);
+
 class WorkoutArcAnimated extends StatefulWidget {
   @required
   final SessionData sessionData;
 
-  const WorkoutArcAnimated({Key key, this.sessionData}) : super(key: key);
+  StringValue callback;
+
+  WorkoutArcAnimated({this.sessionData, this.callback});
   @override
   _WorkoutArcAnimatedState createState() => _WorkoutArcAnimatedState();
 }
@@ -44,6 +48,7 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
         if (repeatitions != 0)
           controller.forward();
         else {
+          widget.callback('done');
           start = false;
           secondsRemains = 10 *
               widget.sessionData.numberOfCircles *
@@ -83,6 +88,7 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
   }
 
   void startTimer() {
+    widget.callback('going');
     if (_timer != null) {
       _timer.cancel();
     }

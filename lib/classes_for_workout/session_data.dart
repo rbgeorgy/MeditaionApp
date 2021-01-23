@@ -45,7 +45,6 @@ class SessionData {
               : limits[i] =
                   limits[i - 1] + 6.2832 * idsDurations[i] / oneCircleDuration;
     }
-    print(limits);
   }
 
   void addCircle() {

@@ -15,7 +15,7 @@ class TrainPageView extends StatefulWidget {
           Types.breathOut,
           Types.hold,
         ],
-        10)
+        1)
   ];
 
   @override
@@ -24,6 +24,7 @@ class TrainPageView extends StatefulWidget {
 
 class _TrainPageViewState extends State<TrainPageView> {
   final _controller = new PageController();
+  String sessionState = 'done';
 
   @override
   void dispose() {
@@ -33,13 +34,24 @@ class _TrainPageViewState extends State<TrainPageView> {
 
   @override
   Widget build(BuildContext context) {
+    print(sessionState);
     List<Widget> _pages = [
       Center(
           child: RotatedBox(
               quarterTurns: -1,
               child: Stack(children: [
+                //WorkoutUnanimated(sessionData: widget.list[0]),
                 WorkoutUnanimated(sessionData: widget.list[0]),
-                WorkoutArcAnimated(sessionData: widget.list[0])
+
+                Builder(
+                    builder: (context) => WorkoutArcAnimated(
+                          sessionData: widget.list[0],
+                          callback: (value) {
+                            setState(() {
+                              return sessionState = value;
+                            });
+                          },
+                        )),
               ]))),
       Center(
           child: RotatedBox(
@@ -52,28 +64,33 @@ class _TrainPageViewState extends State<TrainPageView> {
     return Stack(
       children: [
         PageView(
-          physics: AlwaysScrollableScrollPhysics(),
+          physics: sessionState == 'going'
+              ? NeverScrollableScrollPhysics()
+              : AlwaysScrollableScrollPhysics(),
           controller: _controller,
           scrollDirection: Axis.vertical,
           children: _pages,
         ),
-        new Positioned(
-          bottom: 0.0,
-          right: 0.0,
-          top: 0.0,
-          child: new Container(
-            padding: const EdgeInsets.all(20.0),
-            child: new Center(
-              child: new DotsIndicator(
-                controller: _controller,
-                itemCount: _pages.length,
-                onPageSelected: (int page) {
-                  _controller.animateToPage(
-                    page,
-                    duration: Duration(milliseconds: 250),
-                    curve: Curves.ease,
-                  );
-                },
+        Visibility(
+          visible: sessionState == 'going' ? false : true,
+          child: Positioned(
+            bottom: 0.0,
+            right: 0.0,
+            top: 0.0,
+            child: Container(
+              padding: const EdgeInsets.all(20.0),
+              child: Center(
+                child: DotsIndicator(
+                  controller: _controller,
+                  itemCount: _pages.length,
+                  onPageSelected: (int page) {
+                    _controller.animateToPage(
+                      page,
+                      duration: Duration(milliseconds: 250),
+                      curve: Curves.ease,
+                    );
+                  },
+                ),
               ),
             ),
           ),
