@@ -23,8 +23,16 @@ class TrainPageView extends StatefulWidget {
 }
 
 class _TrainPageViewState extends State<TrainPageView> {
-  final _controller = new PageController();
-  String sessionState = 'done';
+  PageController _controller;
+  String sessionState; // done going paused
+  GlobalKey<WorkoutArcAnimatedState> _keyWorkoutArcAnimatedState = GlobalKey();
+
+  @override
+  void initState() {
+    _controller = new PageController();
+    sessionState = 'done';
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -34,7 +42,7 @@ class _TrainPageViewState extends State<TrainPageView> {
 
   @override
   Widget build(BuildContext context) {
-    print(sessionState);
+    // print(sessionState);
     List<Widget> _pages = [
       Center(
           child: RotatedBox(
@@ -42,9 +50,9 @@ class _TrainPageViewState extends State<TrainPageView> {
               child: Stack(children: [
                 //WorkoutUnanimated(sessionData: widget.list[0]),
                 WorkoutUnanimated(sessionData: widget.list[0]),
-
                 Builder(
                     builder: (context) => WorkoutArcAnimated(
+                          key: _keyWorkoutArcAnimatedState,
                           sessionData: widget.list[0],
                           callback: (value) {
                             setState(() {
@@ -64,15 +72,99 @@ class _TrainPageViewState extends State<TrainPageView> {
     return Stack(
       children: [
         PageView(
-          physics: sessionState == 'going'
+          physics: sessionState != 'done'
               ? NeverScrollableScrollPhysics()
               : AlwaysScrollableScrollPhysics(),
           controller: _controller,
           scrollDirection: Axis.vertical,
           children: _pages,
         ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: 70,
+          child: AppBar(
+            // backgroundColor: Colors.blue,
+            automaticallyImplyLeading: false,
+            title: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+              child: Text(
+                'Тренировка',
+                style: TextStyle(),
+              ),
+            ),
+            actions: sessionState == 'done'
+                ? [
+                    IconButton(
+                        icon: Icon(Icons.play_arrow),
+                        onPressed: () {
+                          setState(() {
+                            _keyWorkoutArcAnimatedState.currentState
+                                .pressOnCenterButton();
+                          });
+                        }),
+                    IconButton(icon: Icon(Icons.more_vert), onPressed: () {})
+                  ]
+                : sessionState == 'paused'
+                    ? [
+                        IconButton(
+                            icon: Icon(Icons.exposure_plus_1),
+                            onPressed: () {
+                              setState(() {
+                                _keyWorkoutArcAnimatedState.currentState
+                                    .addCircle();
+                              });
+                            }),
+                        IconButton(
+                            icon: Icon(Icons.stop),
+                            onPressed: () {
+                              setState(() {
+                                _keyWorkoutArcAnimatedState.currentState
+                                    .stopButton();
+                              });
+                            }),
+                        IconButton(
+                            icon: Icon(Icons.play_arrow),
+                            onPressed: () {
+                              setState(() {
+                                _keyWorkoutArcAnimatedState.currentState
+                                    .pressOnCenterButton();
+                              });
+                            }),
+                        IconButton(
+                            icon: Icon(Icons.more_vert), onPressed: () {})
+                      ]
+                    : [
+                        IconButton(
+                            icon: Icon(Icons.exposure_plus_1),
+                            onPressed: () {
+                              setState(() {
+                                _keyWorkoutArcAnimatedState.currentState
+                                    .addCircle();
+                              });
+                            }),
+                        IconButton(
+                            icon: Icon(Icons.stop),
+                            onPressed: () {
+                              setState(() {
+                                _keyWorkoutArcAnimatedState.currentState
+                                    .stopButton();
+                              });
+                            }),
+                        IconButton(
+                            icon: Icon(Icons.pause),
+                            onPressed: () {
+                              setState(() {
+                                _keyWorkoutArcAnimatedState.currentState
+                                    .pressOnCenterButton();
+                              });
+                            }),
+                        IconButton(
+                            icon: Icon(Icons.more_vert), onPressed: () {})
+                      ],
+          ),
+        ),
         Visibility(
-          visible: sessionState == 'going' ? false : true,
+          visible: sessionState != 'done' ? false : true,
           child: Positioned(
             bottom: 0.0,
             right: 0.0,

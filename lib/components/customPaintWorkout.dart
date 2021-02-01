@@ -10,14 +10,15 @@ class WorkoutArcAnimated extends StatefulWidget {
   @required
   final SessionData sessionData;
 
-  StringValue callback;
+  final StringValue callback;
 
-  WorkoutArcAnimated({this.sessionData, this.callback});
+  WorkoutArcAnimated({Key key, this.sessionData, this.callback})
+      : super(key: key);
   @override
-  _WorkoutArcAnimatedState createState() => _WorkoutArcAnimatedState();
+  WorkoutArcAnimatedState createState() => WorkoutArcAnimatedState();
 }
 
-class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
+class WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
     with SingleTickerProviderStateMixin {
   Animation<double> _animation;
   AnimationController controller;
@@ -25,8 +26,8 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
   int repeatitions;
   int secondsRemains;
   int secondsRemainsThisCircle;
-  String secondsRemainsDisplay;
-  String secondsRemainsThisCircleDisplay;
+  String secondsRemainsDisplay = '';
+  String secondsRemainsThisCircleDisplay = '';
   Timer _timer;
 
   @override
@@ -66,7 +67,25 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
   @override
   void dispose() {
     controller.dispose();
+    if (_timer != null) _timer.cancel();
     super.dispose();
+  }
+
+  void stopButton() {
+    _timer.cancel();
+    controller.reset();
+    widget.callback('done');
+    start = false;
+    secondsRemains = 10 *
+        widget.sessionData.numberOfCircles *
+        widget.sessionData.oneCircleDuration;
+    secondsRemainsThisCircle = 10 * widget.sessionData.oneCircleDuration;
+    repeatitions = widget.sessionData.numberOfCircles;
+  }
+
+  void addCircle() {
+    secondsRemains += 10 * widget.sessionData.oneCircleDuration;
+    repeatitions++;
   }
 
   String getTimeViewF(bool which) {
@@ -117,6 +136,21 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
     if (_timer != null) _timer.cancel();
     secondsRemains = repeatitions * widget.sessionData.oneCircleDuration * 10;
     secondsRemainsThisCircle = widget.sessionData.oneCircleDuration * 10;
+  }
+
+  void pressOnCenterButton() {
+    setState(() {
+      if (!start) {
+        start = true;
+        startTimer();
+        controller.forward();
+      } else {
+        start = false;
+        pauseTimer();
+        widget.callback('paused');
+        controller.reset();
+      }
+    });
   }
 
   @override
@@ -174,17 +208,7 @@ class _WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
                         // minWidth: 50,
                         // height: 50,
                         onPressed: () {
-                          setState(() {
-                            if (!start) {
-                              start = true;
-                              startTimer();
-                              controller.forward();
-                            } else {
-                              start = false;
-                              pauseTimer();
-                              controller.reset();
-                            }
-                          });
+                          pressOnCenterButton();
                         }))),
           );
         },
