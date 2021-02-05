@@ -26,7 +26,8 @@ dependencies:
   ionicons: ^0.0.3
   line_icons: ^0.2.0
   just_audio: ^0.6.5
-  flutter_local_notifications: ^4.0.0
+  awesome_notifications: any
+  # flutter_local_notifications: ^4.0.0
 
 
 
@@ -34,17 +35,17 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
 
-dependency_overrides:
-  flutter_local_notifications:
-    git:
-      url: https://github.com/ened/flutter_local_notifications.git
-      path: flutter_local_notifications
-      ref: 17-notification-actions
-  flutter_local_notifications_platform_interface:
-    git:
-      url: https://github.com/ened/flutter_local_notifications.git
-      path: flutter_local_notifications_platform_interface
-      ref: 17-notification-actions
+# dependency_overrides:
+#   flutter_local_notifications:
+#     git:
+#       url: https://github.com/ened/flutter_local_notifications.git
+#       path: flutter_local_notifications
+#       ref: 17-notification-actions
+#   flutter_local_notifications_platform_interface:
+#     git:
+#       url: https://github.com/ened/flutter_local_notifications.git
+#       path: flutter_local_notifications_platform_interface
+#       ref: 17-notification-actions
 
 dev_dependencies:
   flutter_test:

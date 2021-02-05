@@ -4,7 +4,9 @@ import 'package:meditation/classes_for_workout/session_data.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:meditation/painters/arcPainter.dart';
 
-typedef StringValue = String Function(String);
+import 'NotificationMethods.dart';
+
+typedef StringValue = void Function(String, String);
 
 class WorkoutArcAnimated extends StatefulWidget {
   @required
@@ -29,6 +31,7 @@ class WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
   String secondsRemainsDisplay = '';
   String secondsRemainsThisCircleDisplay = '';
   Timer _timer;
+  TextData textData;
 
   @override
   void initState() {
@@ -49,7 +52,7 @@ class WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
         if (repeatitions != 0)
           controller.forward();
         else {
-          widget.callback('done');
+          widget.callback('done', '');
           start = false;
           secondsRemains = 10 *
               widget.sessionData.numberOfCircles *
@@ -74,7 +77,7 @@ class WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
   void stopButton() {
     _timer.cancel();
     controller.reset();
-    widget.callback('done');
+    widget.callback('done', '');
     start = false;
     secondsRemains = 10 *
         widget.sessionData.numberOfCircles *
@@ -107,27 +110,27 @@ class WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
   }
 
   void startTimer() {
-    widget.callback('going');
+    widget.callback('going', textData.toReturn);
     if (_timer != null) {
       _timer.cancel();
     }
     _timer = new Timer.periodic(Duration(milliseconds: 100), (timer) {
       if (secondsRemains == 0) {
-        setState(() {
-          timer.cancel();
-        });
+        // setState(() {
+        timer.cancel();
+        // });
       } else {
-        setState(() {
-          secondsRemains--;
-          secondsRemainsThisCircle--;
-          secondsRemainsDisplay = getTimeViewF(true);
-          secondsRemainsThisCircleDisplay = getTimeViewF(false);
+        // setState(() {
+        secondsRemains--;
+        secondsRemainsThisCircle--;
+        secondsRemainsDisplay = getTimeViewF(true);
+        secondsRemainsThisCircleDisplay = getTimeViewF(false);
+        // widget.callback('going', secondsRemainsDisplay);
 
-          if (secondsRemainsThisCircle == 0) {
-            secondsRemainsThisCircle =
-                10 * widget.sessionData.oneCircleDuration;
-          }
-        });
+        if (secondsRemainsThisCircle == 0) {
+          secondsRemainsThisCircle = 10 * widget.sessionData.oneCircleDuration;
+        }
+        // });
       }
     });
   }
@@ -139,6 +142,8 @@ class WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
   }
 
   void pressOnCenterButton() {
+    // if (secondsRemains == 0) stopButton();
+
     setState(() {
       if (!start) {
         start = true;
@@ -147,7 +152,7 @@ class WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
       } else {
         start = false;
         pauseTimer();
-        widget.callback('paused');
+        widget.callback('paused', textData.toReturn);
         controller.reset();
       }
     });
@@ -155,6 +160,11 @@ class WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
 
   @override
   Widget build(BuildContext context) {
+    textData = TextData(
+      current: _animation.value,
+      limits: widget.sessionData.limits,
+      items: widget.sessionData.ids,
+    );
     return SizedBox(
       width: 250,
       height: 250,
@@ -185,11 +195,7 @@ class WorkoutArcAnimatedState extends State<WorkoutArcAnimated>
                                         fontWeight: FontWeight.bold,
                                         color: Colors.grey),
                                   ),
-                                  TextData(
-                                    current: _animation.value,
-                                    limits: widget.sessionData.limits,
-                                    items: widget.sessionData.ids,
-                                  ),
+                                  textData,
                                   Text(
                                     '\nКруг\n$secondsRemainsThisCircleDisplay',
                                     textAlign: TextAlign.center,
@@ -226,13 +232,16 @@ class TextData extends StatelessWidget {
   @required
   final List<Types> items;
   final List<String> textDatas = const ['Вдох', 'Выдох', 'Задержка'];
+  String toReturn;
 
-  const TextData({this.current, this.limits, this.items});
+  TextData({this.current, this.limits, this.items});
 
   @override
   Widget build(BuildContext context) {
     for (int i = 0; i < items.length; i++) {
       if (current >= limits[i] && current < limits[i + 1]) {
+        if (textDatas[items[i].index] != toReturn)
+          toReturn = textDatas[items[i].index];
         return Text(
           textDatas[items[i].index],
           style: TextStyle(
