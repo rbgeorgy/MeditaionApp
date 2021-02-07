@@ -8,10 +8,13 @@ Future<void> main() async {
       null,
       [
         NotificationChannel(
-            channelKey: 'basic_channel',
+            onlyAlertOnce: true,
+            playSound: false,
+            enableVibration: false,
+            channelKey: 'silenced',
             channelName: 'Basic notifications',
             channelDescription: 'Notification channel for basic tests',
-            defaultColor: Color(0xFF9D50DD),
+            defaultColor: Colors.blue,
             ledColor: Colors.white)
       ]);
   AwesomeNotifications().isNotificationAllowed().then((isAllowed) {

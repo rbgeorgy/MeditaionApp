@@ -1,15 +1,16 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter/cupertino.dart';
 
+//TODO: без звука, показывать всегда кнопки
 Future<void> showNotificationWithActionButtons(
     int id, int status, String title, String body) async {
+  if (title == '') title = 'Пауза';
   await AwesomeNotifications().createNotification(
       content: NotificationContent(
+          channelKey: "silenced",
           autoCancel: false,
           showWhen: false,
           id: id,
-          channelKey: 'basic_channel',
-          title: title,
+          title: status == 2 ? title : 'Пауза',
           body: body,
           payload: {'uuid': 'user-profile-uuid'}),
       actionButtons: [
@@ -31,4 +32,8 @@ Future<void> showNotificationWithActionButtons(
             enabled: status == 0 ? false : true,
             buttonType: ActionButtonType.KeepOnTop),
       ]);
+}
+
+Future<void> cancelNotification(int id) async {
+  await AwesomeNotifications().cancel(id);
 }

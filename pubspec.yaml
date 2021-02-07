@@ -27,6 +27,7 @@ dependencies:
   line_icons: ^0.2.0
   just_audio: ^0.6.5
   awesome_notifications: any
+  tuple: ^1.0.3
   # flutter_local_notifications: ^4.0.0
 
 
